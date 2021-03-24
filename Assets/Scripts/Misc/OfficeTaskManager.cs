@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class OfficeTaskManager : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class OfficeTaskManager : MonoBehaviour
             targetDigitList.Add((Random.value > 0.5f)? 1U:0U);
         }
         targetDigitsText.text = string.Join("  ", targetDigitList);
+        inputDigitList.Clear();
     }
 
 
@@ -39,13 +41,19 @@ public class OfficeTaskManager : MonoBehaviour
     void OnKeyInput(uint inputDigit)
     {
         inputDigitList.Add(inputDigit);
-        if (inputDigitList.Equals(targetDigitList))
+
+        // check from the start
+        for(int i=0;i<inputDigitList.Count;i++)
         {
-            OnInputFinised();
-        }else
-        {
-            OnInputError();
+            if (inputDigitList[i]!=targetDigitList[i])
+            {
+                OnInputError();
+                return;
+            }
         }
+        if (inputDigitList.Count == targetDigitList.Count)
+            OnInputFinised();
+        
     }
 
 
@@ -63,7 +71,7 @@ public class OfficeTaskManager : MonoBehaviour
                 cursor = true;
                 if (inputDigitList.Count < targetDigitList.Count)
                 {
-                    cursorChar += "_";
+                    cursorChar = "_";
                 }
             }
             else
@@ -71,41 +79,42 @@ public class OfficeTaskManager : MonoBehaviour
                 cursor = false;
                 if (cursorChar.Length != 0)
                 {
-                    cursorChar = cursorChar.Substring(0, cursorChar.Length - 1);
+                    cursorChar = " ";
                 }
             }
         }
     }
     
 
+    [SerializeField] Animator AllUIAnimator = null;
     void OnInputError()
     {
-
+        AllUIAnimator.SetTrigger("Shake");
+        ResetDigits();
     }
 
 
     void OnInputFinised()
     {
         totalTaskCount -= 1;
-        if (totalTaskCount==0)
-            OnAllTaskFinished();
-    }
-
-    void OnAllTaskFinished()
-    {
-
+        if (totalTaskCount<=0)
+            StartCoroutine(OnAllTaskFinished());
+        else
+            ResetDigits();
     }
 
 
-    // Animations
-    IEnumerator ShowText(string fullText, Text UItext)
+    [SerializeField] Animator SceneTransAnimator;
+    [SerializeField] float TransitionTime = 1.0f;
+    IEnumerator OnAllTaskFinished()
     {
-        float deltaTime = 0.1f;
-        for (int i=0;i<fullText.Length;i++)
-        {
-            UItext.text = fullText.Substring(0, i+1);
-            yield return new WaitForSeconds(deltaTime);
-        }
+        Debug.Log("all task finished");
+        // exit scene
+        SceneTransAnimator.SetTrigger("Start");
+        yield return new WaitForSeconds(TransitionTime);
+        Cursor.lockState = CursorLockMode.Locked;
+        PlayerSingleton.instance.state = PlayerSingleton.nextState(PlayerSingleton.instance.state);
+        SceneManager.LoadScene("Demo_Real_Office", LoadSceneMode.Single);
     }
 
 
@@ -117,11 +126,13 @@ public class OfficeTaskManager : MonoBehaviour
         targetDigitsText.text = "";
 
         // dialogues out
-        yield return StartCoroutine(ShowText(promptInfo.text, promptInfo));
+        yield return StartCoroutine(CommonAnimations.ShowText(promptInfo.text, promptInfo));
         yield return new WaitForSeconds(1.0f);
         
         ResetDigits();
 
+        // enable input
+        Cursor.lockState = CursorLockMode.None;
         InputEnabled = true;
     }
 
@@ -129,8 +140,8 @@ public class OfficeTaskManager : MonoBehaviour
     {
         // update input area
         BlinkingCursor();
-        string inputDigitString = string.Join("  ", inputDigitList);
         // update input string on screen
+        string inputDigitString = string.Join("  ", inputDigitList);
         if (inputDigitList.Count < targetDigitList.Count)
         {
             inputDigitString += ("  "+cursorChar);

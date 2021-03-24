@@ -9,6 +9,19 @@ public class InteractableSceneTrans : InteractableBase
     [SerializeField] string exitScene;
     [SerializeField] Animator SceneTransAnimator;
     [SerializeField] float TransitionTime = 1.0f;
+    [SerializeField] PlayerSingleton.DailyState[] validStates;
+
+    void Start()
+    {
+        IsInteractable = false;
+        foreach (var valid_state in validStates)
+        {
+            if (PlayerSingleton.instance.state == valid_state)
+            {
+                IsInteractable = true;
+            }
+        }
+    }
 
     public override void OnInteract()
     {
@@ -20,6 +33,7 @@ public class InteractableSceneTrans : InteractableBase
     {
         SceneTransAnimator.SetTrigger("Start");
         yield return new WaitForSeconds(TransitionTime);
+        PlayerSingleton.instance.state = PlayerSingleton.nextState(PlayerSingleton.instance.state);
         SceneManager.LoadScene(exitScene, LoadSceneMode.Single);
     }
 }

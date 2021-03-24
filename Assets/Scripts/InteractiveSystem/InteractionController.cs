@@ -49,10 +49,14 @@ public class InteractionController : MonoBehaviour
             RaycastHit _hitInfo;
             bool _hitSomething = Physics.SphereCast(_ray, raySphereRadius, out _hitInfo, rayDistance, interactableLayer);
 
+            // debug
+            Debug.DrawRay(_ray.origin, _ray.direction, _hitSomething?Color.green:Color.red);
+            // -----
+
             if (_hitSomething)
             {
                 InteractableBase _interactable = _hitInfo.transform.GetComponent<InteractableBase>();
-                if (_interactable != null)
+                if (_interactable != null && _interactable.IsInteractable)
                 {
                     if (interactionData.IsEmpty() || (!interactionData.IsSameInteractable(_interactable)))
                     {
@@ -67,7 +71,6 @@ public class InteractionController : MonoBehaviour
                 interactionData.ResetData();
             }
 
-            Debug.DrawRay(_ray.origin, _ray.direction * rayDistance, _hitSomething?Color.green:Color.red);
         }
 
         void CheckForInteractableInput()

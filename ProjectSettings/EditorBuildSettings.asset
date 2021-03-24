@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Demo_Imaging.unity
     guid: 826c0ef88af734348beb148473d715c1
+  - enabled: 1
+    path: Assets/Scenes/Demo_Office_Task.unity
+    guid: b1c86a6646e2f8446adad66814dd51df
   m_configObjects: {}

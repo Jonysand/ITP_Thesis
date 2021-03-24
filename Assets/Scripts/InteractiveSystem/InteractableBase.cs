@@ -23,7 +23,14 @@ public class InteractableBase : MonoBehaviour, IIteractable
         public float HoldDuration => holdDuration;
         public bool HoldInteract => holdInteract;
         public bool MultipleUse => multipleUse;
-        public bool IsInteractable => isInteractable;
+        public bool IsInteractable {
+            get{
+                return isInteractable;
+            }
+            set{
+                isInteractable = value;
+            }
+        }
         public string TooltipMessage => tooltipMessage;
     #endregion
 

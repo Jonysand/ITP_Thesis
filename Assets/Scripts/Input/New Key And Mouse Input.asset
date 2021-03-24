@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73bff8c9b1ffd4607b1b50116c4f67be, type: 3}
   m_Name: New Key And Mouse Input
   m_EditorClassIdentifier: 
-  mouseSensitibity: 100
+  enabled: 1
+  mouseSensitibity: 400
   speed: 6
